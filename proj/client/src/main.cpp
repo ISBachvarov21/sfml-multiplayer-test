@@ -1,15 +1,28 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 #include <stdio.h>
 #include <iostream>
 
+static sf::UdpSocket socket;
+
+void sendServer(const char* message) {
+    socket.send(message, sizeof(message), sf::IpAddress::getLocalAddress(), 55001);
+}
+
+void bindSock(uint_fast16_t port) {
+    socket.bind(port, sf::IpAddress::getLocalAddress());
+
+    sendServer("connect");
+}
+
 int main(int argc, char* argv[])
 {
-    short port = -1;
+    uint_fast16_t port = -1;
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--port") == 0) {
             std::cout << "Found --port" << std::endl;
             if (i + 1 < argc) {
-                port = (short)std::stoi(argv[i + 1]);
+                port = (uint_fast16_t)std::stoi(argv[i + 1]);
                 break;
             }
             else {
@@ -20,23 +33,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
+    bindSock(port);
 
     return 0;
 }
