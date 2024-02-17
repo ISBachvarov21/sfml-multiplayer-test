@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
             sendServer(move.dump(4).data());
         }
 
-        /*sf::Socket::Status res = sf::Socket::Done;
+        sf::Socket::Status res = sf::Socket::Done;
 
         std::string lastData;
         while (true) {
@@ -178,20 +178,20 @@ int main(int argc, char* argv[]) {
             }
             lastData.assign(buffer);
             memset(buffer, 0, BUFFERSIZE);
-        }*/
+        }
 
-        auto res = socket.receive(buffer, BUFFERSIZE, received, recvAddr, recvPort);
+        //auto res = socket.receive(buffer, BUFFERSIZE, received, recvAddr, recvPort);
 
-        if (res == sf::Socket::Done) {
+        if (!lastData.empty()) {
+
             json serverJson;
             try {
-                serverJson = json::parse(buffer);
+                serverJson = json::parse(lastData);
             }
             catch (json::exception& e) {
                 std::cout << e.what();
-                abort();
             }
-            
+
             std::string alignment = serverJson["players"][username]["alignment"];
             leftAligned = (alignment == "left");
 
@@ -202,13 +202,14 @@ int main(int argc, char* argv[]) {
             if (std::abs(playerPos - serverPos) > 0.5f) {
                 playerPos = serverPos;
             }
-
+            
             for (auto& [key, value] : serverJson["players"].items()) {
                 if (key != username) {
                     opponentPos = value["posY"];
                 }
             }
         }
+
 
         if (leftAligned) {
             ball.setPosition(ballPos.x * 1280, ballPos.y * 720);
