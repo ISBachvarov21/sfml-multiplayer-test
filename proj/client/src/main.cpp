@@ -10,7 +10,7 @@
 using json = nlohmann::json;
 
 static sf::UdpSocket socket;
-static std::string addr = "";
+static std::string addr;
 static std::string username = "";
 
 void sendServer(const char* message, int retries = 0) {
@@ -53,7 +53,7 @@ bool connectToServer(const char* message) {
 }
 
 void bindSock() {
-    socket.bind(sf::Socket::AnyPort, sf::IpAddress::getLocalAddress());
+    socket.bind(45001, sf::IpAddress::getLocalAddress());
     json data;
 
     data["type"] = "connect";
@@ -67,16 +67,14 @@ void bindSock() {
 }
 
 int main(int argc, char* argv[]) {
-    std::string addr = "";
-
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--addr") == 0) {
             if (i + 1 < argc) {
-                addr = std::stoi(argv[i + 1]);
+                addr = argv[i + 1];
             }
             else {
                 errno = 22;
-                perror("\033[1;31m[-] Invalid --addr usage.\n[-] Usage: client --addr <remoteIPv4Address>");
+                perror("\033[1;31m[-] Invalid --addsr usage.\n[-] Usage: client --addr <remoteIPv4Address>\033[0m\n");
                 abort();
             }
         }
